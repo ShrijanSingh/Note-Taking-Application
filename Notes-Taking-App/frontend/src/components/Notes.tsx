@@ -9,8 +9,8 @@ import {
   Drawer,
   List,
   ListItem,
+  ListItemButton,
   Container,
-  Paper,
   IconButton,
   Card,
   CardContent,
@@ -123,12 +123,12 @@ export default function Notes() {
       >
         <Toolbar />
         <List>
-          <ListItem button selected sx={{ cursor: 'pointer', fontWeight: 600, fontSize: 18 }}>
-            <ListItem>Dashboard</ListItem>
-          </ListItem>
-          <ListItem button onClick={handleLogout} sx={{ cursor: 'pointer', fontWeight: 600, fontSize: 18 }}>
-            <ListItem>Sign Out</ListItem>
-          </ListItem>
+          <ListItemButton selected sx={{ cursor: 'pointer', fontWeight: 600, fontSize: 18 }}>
+            Dashboard
+          </ListItemButton>
+          <ListItemButton onClick={handleLogout} sx={{ cursor: 'pointer', fontWeight: 600, fontSize: 18 }}>
+            Sign Out
+          </ListItemButton>
         </List>
       </Drawer>
 
