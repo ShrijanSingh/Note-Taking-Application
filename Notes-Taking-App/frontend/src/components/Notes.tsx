@@ -6,13 +6,13 @@ import {
   List,
   ListItem,
   ListItemText,
-  IconButton,
-  Button,
-  Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+                     <IconButton
+                       edge="end"
+                       aria-label="delete"
+                       onClick={() => handleDelete(note.id.toString())}
+                     >
+                       <DeleteIcon />
+                     </IconButton>
   TextField,
   AppBar,
   Toolbar,
