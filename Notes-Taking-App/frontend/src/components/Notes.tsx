@@ -114,9 +114,9 @@ function Notes() {
     setOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     try {
-      await noteService.deleteNote(id);
+      await noteService.deleteNote(id.toString());
       setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
       toast.success('Note deleted successfully');
     } catch (err: any) {

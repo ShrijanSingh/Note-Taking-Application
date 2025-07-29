@@ -5,10 +5,9 @@ import type { AuthContextType, AuthState, User } from '../types';
 const initialState: AuthState = {
   user: null,
   token: null,
-  isAuthenticated: false,
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -23,7 +22,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return {
           user,
           token,
-          isAuthenticated: true,
         };
       } catch (error) {
         localStorage.removeItem('token');
@@ -38,7 +36,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setState({
       user,
       token,
-      isAuthenticated: true,
     });
   };
 

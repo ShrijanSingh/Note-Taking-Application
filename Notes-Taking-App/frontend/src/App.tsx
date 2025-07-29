@@ -23,8 +23,8 @@ const theme = createTheme({
 });
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+  const { user, token } = useAuth();
+  return user && token ? <>{children}</> : <Navigate to="/login" />;
 };
 
 function App() {
