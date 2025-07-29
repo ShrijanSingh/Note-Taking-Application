@@ -11,6 +11,13 @@ import {
   Toolbar,
   useMediaQuery,
   useTheme,
+  Button,
+  Box,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useFormik } from 'formik';
@@ -170,7 +177,7 @@ function Notes() {
                     <IconButton
                       edge="end"
                       aria-label="delete"
-                      onClick={() => handleDelete(note.id)}
+                      onClick={() => handleDelete(note.id.toString())}
                     >
                       <DeleteIcon />
                     </IconButton>
