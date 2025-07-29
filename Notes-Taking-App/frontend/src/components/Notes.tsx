@@ -114,10 +114,10 @@ function Notes() {
     setOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
-      await noteService.deleteNote(id.toString());
-      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+      await noteService.deleteNote(id);
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id.toString() !== id));
       toast.success('Note deleted successfully');
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Failed to delete note';
