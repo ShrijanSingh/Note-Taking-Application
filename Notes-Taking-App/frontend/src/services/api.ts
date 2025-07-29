@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const api = axios.create({
   baseURL: API_URL,
@@ -35,7 +35,7 @@ export const authService = {
   },
 
   verifyOtp: async (email: string, otp: string) => {
-    const response = await api.post('/auth/verify-otp', { email, otp });
+    const response = await api.post('/auth/otp/verify', { email, otp });
     return response.data;
   },
 

@@ -1,27 +1,25 @@
-// src/components/Notes.tsx
 import { useState, useEffect } from 'react';
 import {
-  AppBar,
-  Toolbar,
+  Container,
   Typography,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
   Button,
   Box,
-  Drawer,
-  List,
-  ListItemButton,
-  Container,
-  IconButton,
-  Card,
-  CardContent,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
+  AppBar,
+  Toolbar,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { toast } from 'react-hot-toast';
@@ -34,8 +32,8 @@ const validationSchema = yup.object({
   content: yup.string().required('Content is required'),
 });
 
-export default function Notes() {
-  const { logout, user } = useAuth();
+function Notes() {
+  const { logout } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
   const [open, setOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -44,224 +42,212 @@ export default function Notes() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const formik = useFormik({
-    initialValues: { title: '', content: '' },
+    initialValues: {
+      title: '',
+      content: '',
+    },
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
       try {
         if (selectedNote) {
-          const updated = await noteService.updateNote(
+          const updatedNote = await noteService.updateNote(
             selectedNote.id,
             values.title,
             values.content
           );
-          setNotes((prev) =>
-            prev.map((n) => (n.id === updated.id ? updated : n))
+          setNotes((prevNotes) =>
+            prevNotes.map((note) =>
+              note.id === updatedNote.id ? updatedNote : note
+            )
           );
         } else {
-          const created = await noteService.createNote(
+          const newNote = await noteService.createNote(
             values.title,
             values.content
           );
-          setNotes((prev) => [...prev, created]);
+          setNotes((prevNotes) => [...prevNotes, newNote]);
         }
-        toast.success(selectedNote ? 'Note updated' : 'Note created');
         handleClose();
         resetForm();
+        toast.success(selectedNote ? 'Note updated successfully' : 'Note created successfully');
       } catch (err: any) {
-        const msg = err.response?.data?.message || 'Error';
-        setError(msg);
-        toast.error(msg);
+        const errorMessage = err.response?.data?.message || 'Failed to save note';
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
     },
   });
 
   useEffect(() => {
-    noteService
-      .getNotes()
-      .then(setNotes)
-      .catch((err: any) => {
-        const msg = err.response?.data?.message || 'Fetch failed';
-        setError(msg);
-        toast.error(msg);
-      });
+    const fetchNotes = async () => {
+      try {
+        const fetchedNotes = await noteService.getNotes();
+        setNotes(fetchedNotes);
+      } catch (err: any) {
+        const errorMessage = err.response?.data?.message || 'Failed to fetch notes';
+        setError(errorMessage);
+        toast.error(errorMessage);
+      }
+    };
+
+    fetchNotes();
   }, []);
 
-  const handleClickOpen = (note?: Note) => {
-    setSelectedNote(note || null);
-    formik.resetForm({ values: note ? { title: note.title, content: note.content } : undefined });
+  const handleClickOpen = () => {
+    setSelectedNote(null);
+    formik.resetForm();
     setOpen(true);
   };
+
   const handleClose = () => {
     setOpen(false);
     setSelectedNote(null);
     formik.resetForm();
   };
+
+  const handleEdit = (note: Note) => {
+    setSelectedNote(note);
+    formik.setValues({
+      title: note.title,
+      content: note.content,
+    });
+    setOpen(true);
+  };
+
   const handleDelete = async (id: string) => {
     try {
       await noteService.deleteNote(id);
-      setNotes((prev) => prev.filter((n) => n.id !== id));
-      toast.success('Deleted');
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+      toast.success('Note deleted successfully');
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Delete failed';
-      setError(msg);
-      toast.error(msg);
+      const errorMessage = err.response?.data?.message || 'Failed to delete note';
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
-  const handleLogout = () => logout();
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', background: '#f5f6fa' }}>
-      {/* Sidebar */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: 240,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': { width: 240, boxSizing: 'border-box', background: '#fff', borderRight: '1px solid #e0e0e0' },
-        }}
-      >
-        <Toolbar />
-        <List>
-          <ListItemButton selected sx={{ cursor: 'pointer', fontWeight: 600, fontSize: 18 }}>
-            Dashboard
-          </ListItemButton>
-          <ListItemButton onClick={handleLogout} sx={{ cursor: 'pointer', fontWeight: 600, fontSize: 18 }}>
-            Sign Out
-          </ListItemButton>
-        </List>
-      </Drawer>
+    <>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Notes
+          </Typography>
+          <Button color="inherit" onClick={handleLogout}>
+            Logout
+          </Button>
+        </Toolbar>
+      </AppBar>
 
-      {/* Main Content */}
-      <Box component="main" sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1, background: '#1976d2' }}>
-          <Toolbar>
-            <Typography variant="h5" noWrap component="div" sx={{ fontWeight: 700 }}>
-              Notes Dashboard
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <Toolbar />
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        {error && (
+          <Typography color="error" align="center" gutterBottom>
+            {error}
+          </Typography>
+        )}
 
-        <Container maxWidth="xl" sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', py: 4 }}>
-          {error && (
-            <Typography color="error" align="center" sx={{ mb: 2 }}>
-              {error}
-            </Typography>
-          )}
+        <Box sx={{ mb: 4, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleClickOpen}
+          >
+            Add Note
+          </Button>
+        </Box>
 
-          <Box sx={{ width: '100%', maxWidth: 500, mb: 4 }}>
-            <Card elevation={3} sx={{ p: 4, borderRadius: 3, boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)' }}>
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, textAlign: 'center' }}>
-                Welcome, {user?.name || 'User'}!
-              </Typography>
-              <Typography variant="body1" color="textSecondary" sx={{ textAlign: 'center', mb: 2 }}>
-                Email: {user?.email || 'xxxxxx@xxxx.com'}
-              </Typography>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                <Button
-                  variant="contained"
-                  onClick={() => handleClickOpen()}
-                  sx={{ textTransform: 'none', borderRadius: 2, px: 4, py: 1.5, fontWeight: 600, fontSize: 16 }}
-                >
-                  Create Note
-                </Button>
-              </Box>
-            </Card>
-          </Box>
-
-          <Box sx={{ width: '100%', maxWidth: 900, flex: 1 }}>
-            <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
-              My Notes
-            </Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: 3 }}>
-              {notes.map((note, idx) => (
-                <Card
-                  key={note.id}
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    minHeight: 140,
-                    border: '1px solid #e0e0e0',
-                    borderRadius: 3,
-                    boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)',
-                    p: 2,
-                  }}
-                >
-                  <CardContent sx={{ flex: 1 }}>
-                    <Typography sx={{ fontWeight: 600, fontSize: 18, mb: 1 }}>{`Note ${idx + 1}: ${note.title}`}</Typography>
-                    <Typography sx={{ color: '#555', fontSize: 15 }}>{note.content}</Typography>
-                  </CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
-                    <Button
-                      onClick={() => handleClickOpen(note)}
-                      sx={{ textTransform: 'none', mr: 1, fontWeight: 500 }}
+        <Paper elevation={3}>
+          <List>
+            {notes.map((note) => (
+              <ListItem
+                key={note.id}
+                secondaryAction={
+                  <Box>
+                    <IconButton
+                      edge="end"
+                      aria-label="edit"
+                      onClick={() => handleEdit(note)}
                     >
-                      Edit
-                    </Button>
-                    <IconButton onClick={() => handleDelete(note.id)}>
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleDelete(note.id)}
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </Box>
-                </Card>
-              ))}
-            </Box>
-          </Box>
+                }
+              >
+                <ListItemText
+                  primary={note.title}
+                  secondary={note.content}
+                  secondaryTypographyProps={{
+                    style: {
+                      whiteSpace: 'pre-wrap',
+                      maxHeight: '100px',
+                      overflow: 'hidden',
+                    },
+                  }}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
 
-          <Dialog
-            open={open}
-            onClose={handleClose}
-            fullScreen={isMobile}
-            maxWidth="sm"
-            fullWidth
-          >
-            <DialogTitle>
-              {selectedNote
-                ? (() => {
-                    const idx = notes.findIndex((n) => n.id === selectedNote.id);
-                    return idx !== -1 ? `Note ${idx + 1} - Edit Note` : 'Edit Note';
-                  })()
-                : `Note ${notes.length + 1} - Add Note`}
-            </DialogTitle>
-            <form onSubmit={formik.handleSubmit}>
-              <DialogContent>
-                <TextField
-                  fullWidth
-                  margin="normal"
-                  id="title"
-                  name="title"
-                  label="Title"
-                  value={formik.values.title}
-                  onChange={formik.handleChange}
-                  error={formik.touched.title && Boolean(formik.errors.title)}
-                  helperText={formik.touched.title && formik.errors.title}
-                />
-                <TextField
-                  fullWidth
-                  margin="normal"
-                  id="content"
-                  name="content"
-                  label="Content"
-                  multiline
-                  rows={4}
-                  value={formik.values.content}
-                  onChange={formik.handleChange}
-                  error={formik.touched.content && Boolean(formik.errors.content)}
-                  helperText={formik.touched.content && formik.errors.content}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleClose}>Cancel</Button>
-                <Button type="submit" variant="contained">
-                  {selectedNote ? 'Save' : 'Add'}
-                </Button>
-              </DialogActions>
-            </form>
-          </Dialog>
-        </Container>
-      </Box>
-    </Box>
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          fullScreen={isMobile}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>
+            {selectedNote ? 'Edit Note' : 'Add New Note'}
+          </DialogTitle>
+          <form onSubmit={formik.handleSubmit}>
+            <DialogContent>
+              <TextField
+                fullWidth
+                id="title"
+                name="title"
+                label="Title"
+                margin="normal"
+                value={formik.values.title}
+                onChange={formik.handleChange}
+                error={formik.touched.title && Boolean(formik.errors.title)}
+                helperText={formik.touched.title && formik.errors.title}
+              />
+              <TextField
+                fullWidth
+                id="content"
+                name="content"
+                label="Content"
+                margin="normal"
+                multiline
+                rows={4}
+                value={formik.values.content}
+                onChange={formik.handleChange}
+                error={formik.touched.content && Boolean(formik.errors.content)}
+                helperText={formik.touched.content && formik.errors.content}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Cancel</Button>
+              <Button type="submit" variant="contained" color="primary">
+                {selectedNote ? 'Save' : 'Add'}
+              </Button>
+            </DialogActions>
+          </form>
+        </Dialog>
+      </Container>
+    </>
   );
 }
 
-// export default Notes;
+export default Notes;

@@ -17,7 +17,7 @@ import { toast } from 'react-hot-toast';
 import { authService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import rightColumn from '../assets/right-column.png';
-import logo from '../assets/Logo.png';
+import hdLogo from '../assets/hd-logo.png';
 
 const validationSchema = yup.object({
   email: yup.string().email('Invalid email format').required('Email is required'),
@@ -116,10 +116,10 @@ export function Login() {
           p: isMobile ? 2 : 6,
         }}
       >
-
         <Paper elevation={3} sx={{ p: isMobile ? 3 : 5, width: '100%', maxWidth: 400 }}>
+
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-            <img src={logo} alt="Logo" style={{ height: 48, width: 48, borderRadius: '50%' }} />
+            <img src={hdLogo} alt="HD Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
           </Box>
           <Typography variant="h4" align="center" gutterBottom fontWeight={600}>
             Sign in
@@ -132,6 +132,7 @@ export function Login() {
           )}
 
           <form onSubmit={formik.handleSubmit}>
+
             <TextField
               fullWidth
               id="email"
@@ -142,7 +143,7 @@ export function Login() {
               onChange={formik.handleChange}
               error={formik.touched.email && Boolean(formik.errors.email)}
               helperText={formik.touched.email && formik.errors.email}
-              sx={{ background: '#fff', borderRadius: 5, '& .MuiOutlinedInput-root': { borderRadius: 5 } }}
+              sx={{ background: '#fff', borderRadius: 3, '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
             />
 
             <TextField
@@ -156,7 +157,7 @@ export function Login() {
               onChange={formik.handleChange}
               error={formik.touched.password && Boolean(formik.errors.password)}
               helperText={formik.touched.password && formik.errors.password}
-              sx={{ background: '#fff', borderRadius: 5, '& .MuiOutlinedInput-root': { borderRadius: 5 } }}
+              sx={{ background: '#fff', borderRadius: 3, '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
             />
 
             <Button
