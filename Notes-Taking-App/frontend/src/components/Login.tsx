@@ -17,7 +17,7 @@ import { toast } from 'react-hot-toast';
 import { authService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import rightColumn from '../assets/right-column.png';
-import hdLogo from '../assets/hd-logo.png';
+import Logo from '../assets/Logo.png';
 
 const validationSchema = yup.object({
   email: yup.string().email('Invalid email format').required('Email is required'),
@@ -119,7 +119,7 @@ export function Login() {
         <Paper elevation={3} sx={{ p: isMobile ? 3 : 5, width: '100%', maxWidth: 400 }}>
 
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-            <img src={hdLogo} alt="HD Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
+            <img src={Logo} alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
           </Box>
           <Typography variant="h4" align="center" gutterBottom fontWeight={600}>
             Sign in
