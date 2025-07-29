@@ -51,7 +51,7 @@ function Notes() {
       try {
         if (selectedNote) {
           const updatedNote = await noteService.updateNote(
-            selectedNote.id,
+            selectedNote.id.toString(),
             values.title,
             values.content
           );
